@@ -31,8 +31,9 @@ type (
 
 		Add(s Keeper) bool
 		AddWithDelete(p Keeper) bool
-		Del(name string) bool
 		Bind(p Keeper, del bool)
+		Del(name string) bool
+		Get(name string) (keeper Keeper, exists bool)
 
 		After(es ...Event) Keeper
 		Before(es ...Event) Keeper
@@ -91,6 +92,13 @@ func (o *keeper) Del(name string) bool {
 		return true
 	}
 	return false
+}
+
+func (o *keeper) Get(name string) (keeper Keeper, exists bool) {
+	o.mu.RLock()
+	defer o.mu.RUnlock()
+	keeper, exists = o.subKeepers[name]
+	return
 }
 
 func (o *keeper) add(p Keeper, del bool) bool {
