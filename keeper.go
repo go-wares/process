@@ -116,7 +116,7 @@ func (o *keeper) add(p Keeper, del bool) bool {
 	// 更新映射.
 	o.subKeepers[p.Name()] = p
 	o.mu.Unlock()
-	log.Debug("[keeper=%s] add child keeper: %s", o.name, p.Name())
+	log.Debugf("[keeper=%s] add child keeper: %s", o.name, p.Name())
 
 	// 立即启动.
 	if o.Health() {
@@ -153,7 +153,7 @@ func (o *keeper) Panic(ep PanicEvent) Keeper {
 // 启动子进程.
 func (o *keeper) childStart(s Keeper) {
 	if err := s.Start(o.ctx); err != nil {
-		log.Error("[keeper=%s] child start: %v", o.name, err)
+		log.Errorf("[keeper=%s] child start: %v", o.name, err)
 	}
 }
 
@@ -212,7 +212,7 @@ func (o *keeper) runEvents(ctx context.Context, es []Event) (ignored bool) {
 			if o.ep != nil {
 				o.ep(ctx, v)
 			} else {
-				log.Fatal("[keeper] run registered events fatal: %v", v)
+				log.Fatalf("[keeper] run registered events fatal: %v", v)
 			}
 		}
 	}()
@@ -256,12 +256,12 @@ func (o *keeper) Start(ctx context.Context) (err error) {
 	// 开始启动.
 	o.running = true
 	o.mu.Unlock()
-	log.Debug("[keeper=%s] start keeper", o.name)
+	log.Debugf("[keeper=%s] start keeper", o.name)
 
 	// 退出进程.
 	defer func() {
 		o.reset()
-		log.Debug("[keeper=%s] keeper stopped", o.name)
+		log.Debugf("[keeper=%s] keeper stopped", o.name)
 	}()
 
 	// 前置事件.
@@ -301,7 +301,7 @@ func (o *keeper) Start(ctx context.Context) (err error) {
 		// 上下文/创建.
 		rc := atomic.AddUint64(&o.redoCount, 1)
 
-		log.Debug("[keeper=%s] listen events called: count=%d", o.name, rc)
+		log.Debugf("[keeper=%s] listen events called: count=%d", o.name, rc)
 		o.contextBuild(ctx)
 
 		// 上下文/主体.
@@ -331,7 +331,7 @@ func (o *keeper) Stopped() bool {
 // +----------------------------------------------------------------------------
 
 func (o *keeper) init() *keeper {
-	log.Debug("[keeper=%s] initialized", o.name)
+	log.Debugf("[keeper=%s] initialized", o.name)
 
 	o.mu = &sync.RWMutex{}
 	o.subKeepers = make(map[string]Keeper)
